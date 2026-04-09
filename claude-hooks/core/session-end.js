@@ -294,7 +294,7 @@ function storeSessionMemory(endpoint, apiKey, content, projectContext, analysis)
         const postData = JSON.stringify({
             content: content,
             tags: uniqueTags,
-            memory_type: 'session-summary',
+            memory_type: 'observation',
             metadata: {
                 session_analysis: {
                     topics: analysis.topics,

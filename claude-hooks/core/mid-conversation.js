@@ -502,3 +502,46 @@ module.exports = {
         priority: 'high'
     }
 };
+
+// Claude Code UserPromptSubmit entry point
+if (require.main === module) {
+    const fs = require('fs').promises;
+    const path = require('path');
+
+    async function loadConfig() {
+        try {
+            const configPath = path.join(__dirname, '../config.json');
+            const data = await fs.readFile(configPath, 'utf8');
+            return JSON.parse(data);
+        } catch (e) {
+            return {};
+        }
+    }
+
+    let input = '';
+    process.stdin.on('data', d => { input += d; });
+    process.stdin.on('end', async () => {
+        let data = {};
+        try { data = JSON.parse(input || '{}'); } catch (e) { /* ignore parse errors */ }
+
+        const config = await loadConfig();
+
+        const context = {
+            userMessage: data.prompt || '',
+            sessionId: data.session_id,
+            workingDirectory: data.cwd || process.cwd(),
+            config,
+            injectSystemMessage: async (msg) => {
+                // Output additionalContext so Claude Code prepends it to the conversation
+                process.stdout.write(JSON.stringify({ additionalContext: msg }) + '\n');
+            }
+        };
+
+        try {
+            await onMidConversation(context);
+        } catch (e) {
+            // Never exit non-zero — hook errors must not block user prompts
+        }
+        process.exit(0);
+    });
+}

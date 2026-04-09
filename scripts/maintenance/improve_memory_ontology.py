@@ -14,6 +14,7 @@ Usage:
 
 import requests
 import json
+import os
 import sys
 import time
 import urllib3
@@ -26,6 +27,9 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # API Configuration
 API_BASE_URLS = ["http://127.0.0.1:8000/api", "https://127.0.0.1:8000/api"]
 HEADERS = {"Content-Type": "application/json"}
+_api_key = os.environ.get("MCP_API_KEY")
+if _api_key:
+    HEADERS["X-API-Key"] = _api_key
 
 
 def get_working_api_url() -> str:
